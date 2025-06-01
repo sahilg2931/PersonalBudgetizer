@@ -26,6 +26,14 @@ IncomeRemainder ( Total - all expenditures and investment should be around 60000
 Input for Transaction History - bank statements.
 
 
-# Implementation details
--need to set cohere api key to run the main.py
+# TODO
+- complete rest of the logic in main.py for atleast 
+personal use for 1 person.
+- need to set cohere api key to run the main.py
+- make sure the code picks env variable for api key.
+- how to handle for multiple users(maybe 10-20 people, 
+so need to optimise but improve user experience), for e.g.
+connecting bank accounts to get transaction dynamically. 
+- what data privacy issues can arise and solve them.
+
 
