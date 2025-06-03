@@ -26,6 +26,20 @@ IncomeRemainder ( Total - all expenditures and investment should be around 60000
 Input for Transaction History - bank statements.
 
 
-# Implementation details
--need to set cohere api key to run the main.py
+# Implementation details/limits
+-need to set cohere api key in env  to run the main.py
+-bank statements will be sent to cohere AI API and hence that is a data privacy issue ?? is it ??
+-not many tokens are supported , so only one month bank statement is being processed
+-a lot of payments are being uncategorized, so they have to be summarized
+
+# TODO Priority Wise
+- complete rest of the logic in main.py - done
+- since a lot of payments are being uncategorized, summarize them in categories , maybe summarize payments for any category using LLM.  - done 
+- find solution to adhering to token limit as sometimes not all rows in bank statements will be returned from llm response   
+- ability to give multiple banks statements and merge the interpretation 
+- ability to categorize existing data with extra info (for e.g. sagar is my brother and not uncategorized) ??
+- validation for tasks done by llm using api from different llms??
+- feature for moving expenditure from one category to another, so if I think in food there is some money that is supposed to be in convenience , I should be able to shift it.
+- instead of path take the csv as input from user
+
 

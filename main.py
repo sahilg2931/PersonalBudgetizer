@@ -1,22 +1,23 @@
 from models.budget import MonthlyBudget
-from services.llm_interpret_transaction_history import TransactionStatementParser
-
+from services.llm_interpret_bank_statement import TransactionStatementParser
+from services.tracker import BudgetTracker
+from models.category import Category
+import services.summary_llm_transaction_category as  summary_llm_transaction_category 
 
 def main():
-    income = 165000  # Monthly income TODO take input from user
-    budget = MonthlyBudget()
+    monthlyIncome = 0  # Monthly income TODO take input from user
+    budget = MonthlyBudget() # TODO take these values from user
 
-    parser = TransactionStatementParser(r"C:\Users\Sahil Gautam\Desktop\Personal Projects\PersonalBudgetizer\services\raw_statement.csv")
+    parser = TransactionStatementParser(r"C:\Users\Sahil Gautam\Desktop\Personal Projects\PersonalBudgetizer\services\raw_transaction.csv.csv")
+    # list of Transaction objects (date , amount , description , category) 
+    # interpreted using ai from bank statements
     transactions = parser.parse()
-    for t in transactions:
-        print(t.date, " ",t.amount," ",t.description," ", t.category)
-    #print(transactions)
-    # calculator = BudgetCalculator(transactions, budget)
-    # #calculator.assign_categories()
-    # summary = calculator.summarize()
-
-    # tracker = BudgetTracker(summary, budget)
-    # tracker.print_report()
+    
+    tracker = BudgetTracker(budget)
+    tracker.updateBudgetTracker(transactions)   
+    
+    summaryUncategorized = summary_llm_transaction_category.getSummaryForTransactionCategory(transactions, Category.UNCATEGORIZED, budget)
+    print(summaryUncategorized)
 
 if __name__ == "__main__":
     main()

@@ -1,3 +1,4 @@
+# Models Category of expenditures
 from enum import Enum
 
 class Category(str, Enum):
