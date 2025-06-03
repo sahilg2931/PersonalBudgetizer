@@ -41,5 +41,7 @@ Input for Transaction History - bank statements.
 - validation for tasks done by llm using api from different llms??
 - feature for moving expenditure from one category to another, so if I think in food there is some money that is supposed to be in convenience , I should be able to shift it.
 - instead of path take the csv as input from user
+- solve data privacy issues(identify and resolve)
+- scale it for more users creating UI/UX 
 
 
