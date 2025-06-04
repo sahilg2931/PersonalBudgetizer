@@ -1,14 +1,22 @@
-# Uses cohere model to interpret messy bank statements to convert them into clean csv
-# and then convert the transactions into Transaction object
-
 import io
+import csv
 from typing import Optional
 from datetime import datetime
-import csv
 from models.transaction import Transaction
 from models.category import Category
 import services.llm_prompt_response as llm_prompt_response
 
+MAX_CHARS_PER_CHUNK = 4000  # Safe buffer for LLM token limits
+
+# Predefined categories used for classification
+PREDEFINED_CATEGORIES = [
+    "FlatExpenditures",          # Rent, maid, electricity, maintenance
+    "ConvenienceExpenditures",   # Clothes, gadgets, shopping, hygiene, fuel, cabs
+    "FoodExpenditures",          # All food and deliveries
+    "Investment",                # Monthly investments
+    "UncategorizedExpenditures", # Uncategorized/others
+    "Income"                     # credit from either refunds or salary or any money that comes into account
+]
 
 class TransactionStatementParser:
     def __init__(self, file_path: str):
@@ -17,7 +25,7 @@ class TransactionStatementParser:
     def parse(self):
         transactions = []
         raw_text = read_statement_csv(self.file_path)
-        clean_csv_result = extract_transactions_with_llm(raw_text) 
+        clean_csv_result = extract_transactions_with_llm(raw_text)
         csv_file_like = io.StringIO(clean_csv_result.strip())
         reader = csv.DictReader(csv_file_like)
         for row in reader:
@@ -28,19 +36,11 @@ class TransactionStatementParser:
                 description = row['description']
                 category_str = row['category']
                 category_enum = Category(category_str)
-                transactions.append(Transaction(date_obj,amount, description, category_enum))
+                transactions.append(Transaction(date_obj, amount, description, category_enum))
             except (ValueError, KeyError) as e:
                 print(f"Skipping invalid row: {row} — Error: {e}")
         return transactions
 
-PREDEFINED_CATEGORIES = [
-    "FlatExpenditures",          # Rent, maid, electricity, maintenance
-    "ConvenienceExpenditures",   # Clothes, gadgets, shopping, hygiene, fuel, cabs
-    "FoodExpenditures",                      # All food and deliveries
-    "Investment",                # Monthly investments
-    "UncategorizedExpenditures",          # Uncategorized/others
-    "Income"            # credit from either refunds or salary or any money that comes into account
-]
 
 def read_statement_csv(file_path: str) -> str:
     with open(file_path, "r", encoding="utf-8") as f:
@@ -49,8 +49,34 @@ def read_statement_csv(file_path: str) -> str:
     return "\n".join(rows)
 
 
+def split_text_into_chunks(text: str, max_chars: int = MAX_CHARS_PER_CHUNK) -> list[str]:
+    lines = text.splitlines()
+    chunks = []
+    current_chunk = []
+    current_length = 0
+
+    for line in lines:
+        line_length = len(line) + 1  # account for newline
+        if current_length + line_length > max_chars:
+            chunks.append("\n".join(current_chunk))
+            current_chunk = [line]
+            current_length = line_length
+        else:
+            current_chunk.append(line)
+            current_length += line_length
+
+    if current_chunk:
+        chunks.append("\n".join(current_chunk))
+
+    return chunks
+
+
 def extract_transactions_with_llm(statement_text: str) -> str:
-    prompt = f"""
+    chunks = split_text_into_chunks(statement_text)
+    all_csv_rows = []
+
+    for i, chunk in enumerate(chunks):
+        prompt = f"""
 You are a helpful assistant that converts messy Indian bank statements into a clean and categorized CSV.
 
 From the following raw bank statement text, extract only the transactions into a CSV format with these four columns:
@@ -74,10 +100,16 @@ IMPORTANT:
 
 Here is the raw input:
 ---
-{statement_text}
+{chunk}
 ---
 Return the CSV only, no extra comments.
 """
-    return llm_prompt_response.call_cohere_chat_with_retry(prompt)
+        response = llm_prompt_response.call_cohere_chat_with_retry(prompt, 8000)
+        lines = response.strip().splitlines()
 
+        if i == 0:
+            all_csv_rows.extend(lines)  # Include header for the first chunk
+        else:
+            all_csv_rows.extend(lines[1:])  # Skip header for subsequent chunks
 
+    return "\n".join(all_csv_rows)

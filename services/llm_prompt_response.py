@@ -7,7 +7,7 @@ api_key = os.getenv("COHERE_API_KEY")
 client = cohere.ClientV2(api_key)
 
 
-def call_cohere_chat_with_retry(prompt: str, retries=5, delay=5) -> str:
+def call_cohere_chat_with_retry(prompt: str, max_tokens, retries=5, delay=5,) -> str:
     for attempt in range(retries):
         try:
             response = client.chat(
@@ -17,7 +17,7 @@ def call_cohere_chat_with_retry(prompt: str, retries=5, delay=5) -> str:
                     {"role": "user", "content": prompt}
                 ],
                 temperature=0,
-                max_tokens=8100,
+                max_tokens=max_tokens,
             )
             # Access the text content from the response
             return response.message.content[0].text.strip()

@@ -35,8 +35,10 @@ Input for Transaction History - bank statements.
 # TODO Priority Wise
 - complete rest of the logic in main.py - done
 - since a lot of payments are being uncategorized, summarize them in categories , maybe summarize payments for any category using LLM.  - done 
-- find solution to adhering to token limit as sometimes not all rows in bank statements will be returned from llm response   
+- find solution to adhering to token limit as sometimes not all rows in bank statements will be returned from llm response - done 
 - ability to give multiple banks statements and merge the interpretation 
+- validate the results using another api month wise .
+- implement saving interpreted csv so as to validate manually or check the cleaned csv .
 - ability to categorize existing data with extra info (for e.g. sagar is my brother and not uncategorized) ??
 - validation for tasks done by llm using api from different llms??
 - feature for moving expenditure from one category to another, so if I think in food there is some money that is supposed to be in convenience , I should be able to shift it.

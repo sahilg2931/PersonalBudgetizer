@@ -1,6 +1,9 @@
 # models for tracking and summarizing month wise budget and expenditure.
 from models.category import Category
 from models.transaction import Transaction
+import os
+import csv
+
 
 # Data of Budget Vs Expenditure for user predefined categories per month 
 # updated via list of Object Transaction which is in turn interpreted 
@@ -30,6 +33,7 @@ class BudgetTracker:
                 # budgetAndExpenditure is a tuple (year, month)
                 monthBudgetTracker = self.BudgetAndExpenditures[budgetAndExpenditure]
                 totalMonthlyExpenditure = 0
+                monthlyIncome=0
                 print("For month", monthBudgetTracker.month, "year", monthBudgetTracker.year, "the budget vs expenditure is:")
                 for category, expenditure in monthBudgetTracker.BudgetAndExpenditures.items(): 
                     if category == Category.INCOME:
