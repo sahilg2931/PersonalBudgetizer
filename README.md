@@ -1,4 +1,4 @@
-# PersonalBudgetizer
+# PersonalBudgeteer
 
 # DESIGN
 
